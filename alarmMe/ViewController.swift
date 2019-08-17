@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreLocation
 
-class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDataSource{
+class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDataSource,UISearchBarDelegate{
 
     @IBOutlet weak var searchResultsTableView: searchResultsUITableView!
     let initialLocation = CLLocation(latitude: 21.282778, longitude: -157.829444)
@@ -22,10 +22,10 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
     var searchString:String = ""
     var searchResults:[MKMapItem] = []
     @IBOutlet weak var mapView: MKMapView!
-    @IBOutlet weak var searchBox: UITextField!
+    @IBOutlet weak var searchBar: UISearchBar!
     
-    @IBAction func searchBoxUpdated(_ sender: Any) {
-        searchString = searchBox.text ?? ""
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        searchString = searchBar.text ?? ""
         print("\(searchString)")
         searchRequest.naturalLanguageQuery = searchString
         let search = MKLocalSearch(request: searchRequest)
@@ -36,21 +36,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
             }
             self.searchResults = response.mapItems
             self.searchResultsTableView.reloadData()
-            print("\(self.searchResults)")
-        }
-    }
-    
-    
-    @IBAction func searchButton(_ sender: Any) {
-        searchRequest.naturalLanguageQuery = searchBox.text
-        let search = MKLocalSearch(request: searchRequest)
-        
-        search.start { response, error in
-            guard let response = response else {
-                print("Error: \(error?.localizedDescription ?? "Unknown error").")
-                return
-            }
-            self.centerMapOnLocation(location: response.mapItems.first!.placemark)
+//            print("\(self.searchResults)")
         }
     }
     
@@ -80,6 +66,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         centerMapOnLocation(location: initialLocation)
         // Do any additional setup after loading the view.
         searchResultsTableView.dataSource = self
+        searchBar.delegate = self
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
