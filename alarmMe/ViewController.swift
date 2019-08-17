@@ -23,8 +23,12 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
     var searchResults:[MKMapItem] = []
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var searchBar: UISearchBar!
+//    @IBAction func searchButton(_ sender: Any) {
+//        centerMapOnLocation(location: <#T##MKPlacemark#>)
+//    }
     
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+    func doSearch () {
+        
         searchString = searchBar.text ?? ""
         print("\(searchString)")
         searchRequest.naturalLanguageQuery = searchString
@@ -36,8 +40,12 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
             }
             self.searchResults = response.mapItems
             self.searchResultsTableView.reloadData()
-//            print("\(self.searchResults)")
+            //            print("\(self.searchResults)")
         }
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        doSearch()
     }
     
  
@@ -95,6 +103,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         print("I'm selected")
         let placemark = searchResults[indexPath.row].placemark
         searchBar.text = "\(placemark.subThoroughfare ?? "") \(placemark.thoroughfare ?? "") \(placemark.locality ?? ""), \(placemark.administrativeArea ?? "") \(placemark.postalCode ?? ""), \(placemark.countryCode ?? "")"
+        doSearch()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
