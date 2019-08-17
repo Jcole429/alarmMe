@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreLocation
 
-class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDataSource,UISearchBarDelegate{
+class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate{
 
     @IBOutlet weak var searchResultsTableView: searchResultsUITableView!
     let initialLocation = CLLocation(latitude: 21.282778, longitude: -157.829444)
@@ -66,6 +66,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         centerMapOnLocation(location: initialLocation)
         // Do any additional setup after loading the view.
         searchResultsTableView.dataSource = self
+        searchResultsTableView.delegate = self
         searchBar.delegate = self
     }
     
@@ -90,7 +91,11 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         cell.nameLabel?.text = "\(placemark.subThoroughfare ?? "") \(placemark.thoroughfare ?? "") \(placemark.locality ?? ""), \(placemark.administrativeArea ?? "") \(placemark.postalCode ?? ""), \(placemark.countryCode ?? "")"
         return cell
     }
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("I'm selected")
+        let placemark = searchResults[indexPath.row].placemark
+        searchBar.text = "\(placemark.subThoroughfare ?? "") \(placemark.thoroughfare ?? "") \(placemark.locality ?? ""), \(placemark.administrativeArea ?? "") \(placemark.postalCode ?? ""), \(placemark.countryCode ?? "")"
+    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
