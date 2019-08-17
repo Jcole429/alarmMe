@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B4D7ABE42307AC66005ABFA2 /* searchResultsUITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D7ABE32307AC66005ABFA2 /* searchResultsUITableView.swift */; };
 		B4FB6AC9230760D100431B46 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FB6AC8230760D100431B46 /* AppDelegate.swift */; };
 		B4FB6ACB230760D100431B46 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FB6ACA230760D100431B46 /* ViewController.swift */; };
 		B4FB6ACE230760D100431B46 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4FB6ACC230760D100431B46 /* Main.storyboard */; };
@@ -34,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B4D7ABE32307AC66005ABFA2 /* searchResultsUITableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = searchResultsUITableView.swift; sourceTree = "<group>"; };
 		B4FB6AC5230760D100431B46 /* alarmMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = alarmMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4FB6AC8230760D100431B46 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B4FB6ACA230760D100431B46 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 		B4FB6AC7230760D100431B46 /* alarmMe */ = {
 			isa = PBXGroup;
 			children = (
+				B4FB6AF6230762F000431B46 /* ViewControllers */,
 				B4FB6AC8230760D100431B46 /* AppDelegate.swift */,
 				B4FB6ACA230760D100431B46 /* ViewController.swift */,
 				B4FB6ACC230760D100431B46 /* Main.storyboard */,
@@ -123,6 +126,14 @@
 				B4FB6AEA230760D300431B46 /* Info.plist */,
 			);
 			path = alarmMeUITests;
+			sourceTree = "<group>";
+		};
+		B4FB6AF6230762F000431B46 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				B4D7ABE32307AC66005ABFA2 /* searchResultsUITableView.swift */,
+			);
+			path = ViewControllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -257,6 +268,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B4FB6ACB230760D100431B46 /* ViewController.swift in Sources */,
+				B4D7ABE42307AC66005ABFA2 /* searchResultsUITableView.swift in Sources */,
 				B4FB6AC9230760D100431B46 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
