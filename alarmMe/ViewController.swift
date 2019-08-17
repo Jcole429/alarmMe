@@ -12,36 +12,71 @@ import CoreLocation
 
 class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate{
 
-    @IBOutlet weak var searchResultsTableView: searchResultsUITableView!
-    let initialLocation = CLLocation(latitude: 21.282778, longitude: -157.829444)
+    var currentLocation = CLLocation(latitude: 21.282778, longitude: -157.829444) //random initial location
     let regionRadius: CLLocationDistance = 1000
-    let searchRequest = MKLocalSearch.Request()
     let locationManager:CLLocationManager = CLLocationManager()
     
-    var searchString:String = ""
-    var searchResults:[MKMapItem] = []
     @IBOutlet weak var mapView: MKMapView!
+    
+    //variables for search function
+    var searchString:String = ""
+    let searchRequest = MKLocalSearch.Request()
+    var searchResults:[MKMapItem] = []
+    var proposedDestinationLocation:MKMapItem = MKMapItem()
+    
     @IBOutlet weak var searchBar: UISearchBar!
+    @IBOutlet weak var searchResultsTableView: searchResultsUITableView!
+    @IBOutlet weak var proposedDestinationLabel: UILabel!
+    @IBOutlet weak var currentLocationLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        locationManager.delegate = self
-        locationManager.requestAlwaysAuthorization()
-        locationManager.startUpdatingLocation()
-        locationManager.distanceFilter = 100 //100 meter frequency filter
         
-        //locationManager.stopUpdatingLocation()()
+        setupLocationManager()
+        setupSearchFunctionality()
+
+        centerMapOnLocation(location: currentLocation)
         
-        centerMapOnLocation(location: initialLocation)
-        // Do any additional setup after loading the view.
+        mapView.showsUserLocation = true
+    }
+    
+    func numberOfSections(in searchResultsTableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ searchResultsTableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return searchResults.count
+    }
+    
+    func tableView(_ searchResultsTableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = searchResultsTableView.dequeueReusableCell(withIdentifier: "searchResultCell") as! searchResultCell
+        cell.nameLabel?.text = mkMapItemToAddress(mkMapItem: searchResults[indexPath.row])
+        return cell
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("I'm selected")
+        searchBar.text = mkMapItemToAddress(mkMapItem: searchResults[indexPath.row])
+        doSearch()
+        
+        self.proposedDestinationLocation = searchResults[indexPath.row]
+        proposedDestinationLabel.text = mkMapItemToAddress(mkMapItem: proposedDestinationLocation)
+        searchBar.endEditing(true)
+        centerMapOnLocation(location: self.proposedDestinationLocation.placemark)
+    }
+    
+    func mkMapItemToAddress (mkMapItem : MKMapItem) -> String {
+        let placemark = mkMapItem.placemark
+        let result = "\(placemark.subThoroughfare ?? "") \(placemark.thoroughfare ?? "") \(placemark.locality ?? ""), \(placemark.administrativeArea ?? "") \(placemark.postalCode ?? ""), \(placemark.countryCode ?? "")"
+        return result
+    }
+}
+//searchFunctionality
+extension ViewController {
+    func setupSearchFunctionality () {
         searchResultsTableView.dataSource = self
         searchResultsTableView.delegate = self
         searchResultsTableView.isHidden = true
         searchBar.delegate = self
-    }
-    
-    @IBAction func searchButton(_ sender: Any) {
-        centerMapOnLocation(location: searchResults.first!.placemark)
     }
     
     func doSearch () {
@@ -85,11 +120,13 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         searchBar.text = ""
     }
     
- 
-    func centerMapOnLocation(location: CLLocation) {
-        let coordinateRegion = MKCoordinateRegion(center: location.coordinate,
-                                                  latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
-        mapView.setRegion(coordinateRegion, animated: true)
+    @IBAction func searchButton(_ sender: Any) {
+        centerMapOnLocation(location: searchResults.first!.placemark)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        view.endEditing(true)
+        super.touchesBegan(touches, with: event)
     }
     
     func centerMapOnLocation(location: MKPlacemark) {
@@ -97,38 +134,29 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
                                                   latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
         mapView.setRegion(coordinateRegion, animated: true)
     }
+}
+//locationManager
+extension ViewController {
+    func setupLocationManager () {
+        locationManager.delegate = self
+        locationManager.requestAlwaysAuthorization()
+        locationManager.startUpdatingLocation()
+        locationManager.distanceFilter = 100 //100 meter frequency filter
+        //locationManager.stopUpdatingLocation()()
+    }
+    
+    func centerMapOnLocation(location: CLLocation) {
+        let coordinateRegion = MKCoordinateRegion(center: location.coordinate,
+                                                  latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
+        mapView.setRegion(coordinateRegion, animated: true)
+    }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         for currentLocation in locations{
-//            print("\(index): \(currentLocation)")
-            centerMapOnLocation(location: currentLocation)
+            //            print("\(index): \(currentLocation)")
+            self.currentLocation = currentLocation
+            centerMapOnLocation(location: self.currentLocation)
         }
-    }
-    
-    func numberOfSections(in searchResultsTableView: UITableView) -> Int {
-        return 1
-    }
-    
-    func tableView(_ searchResultsTableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return searchResults.count
-    }
-    
-    func tableView(_ searchResultsTableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = searchResultsTableView.dequeueReusableCell(withIdentifier: "searchResultCell") as! searchResultCell
-        let placemark = searchResults[indexPath.row].placemark
-        cell.nameLabel?.text = "\(placemark.subThoroughfare ?? "") \(placemark.thoroughfare ?? "") \(placemark.locality ?? ""), \(placemark.administrativeArea ?? "") \(placemark.postalCode ?? ""), \(placemark.countryCode ?? "")"
-        return cell
-    }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("I'm selected")
-        let placemark = searchResults[indexPath.row].placemark
-        searchBar.text = "\(placemark.subThoroughfare ?? "") \(placemark.thoroughfare ?? "") \(placemark.locality ?? ""), \(placemark.administrativeArea ?? "") \(placemark.postalCode ?? ""), \(placemark.countryCode ?? "")"
-        doSearch()
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        view.endEditing(true)
-        super.touchesBegan(touches, with: event)
     }
 }
 
