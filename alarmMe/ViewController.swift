@@ -16,51 +16,12 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
     let initialLocation = CLLocation(latitude: 21.282778, longitude: -157.829444)
     let regionRadius: CLLocationDistance = 1000
     let searchRequest = MKLocalSearch.Request()
-    
     let locationManager:CLLocationManager = CLLocationManager()
     
     var searchString:String = ""
     var searchResults:[MKMapItem] = []
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var searchBar: UISearchBar!
-//    @IBAction func searchButton(_ sender: Any) {
-//        centerMapOnLocation(location: <#T##MKPlacemark#>)
-//    }
-    
-    func doSearch () {
-        
-        searchString = searchBar.text ?? ""
-        print("\(searchString)")
-        searchRequest.naturalLanguageQuery = searchString
-        let search = MKLocalSearch(request: searchRequest)
-        search.start { response, error in
-            guard let response = response else {
-                print("Error: \(error?.localizedDescription ?? "Unknown error").")
-                return
-            }
-            self.searchResults = response.mapItems
-            self.searchResultsTableView.reloadData()
-            //            print("\(self.searchResults)")
-        }
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        doSearch()
-    }
-    
- 
-    func centerMapOnLocation(location: CLLocation) {
-        let coordinateRegion = MKCoordinateRegion(center: location.coordinate,
-                                                  latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
-        mapView.setRegion(coordinateRegion, animated: true)
-    }
-    
-    func centerMapOnLocation(location: MKPlacemark) {
-        let coordinateRegion = MKCoordinateRegion(center: location.coordinate,
-                                                  latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
-        mapView.setRegion(coordinateRegion, animated: true)
-    }
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,7 +36,66 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         // Do any additional setup after loading the view.
         searchResultsTableView.dataSource = self
         searchResultsTableView.delegate = self
+        searchResultsTableView.isHidden = true
         searchBar.delegate = self
+    }
+    
+    @IBAction func searchButton(_ sender: Any) {
+        centerMapOnLocation(location: searchResults.first!.placemark)
+    }
+    
+    func doSearch () {
+        searchString = searchBar.text ?? ""
+        print("\(searchString)")
+        searchRequest.naturalLanguageQuery = searchString
+        searchRequest.region = mapView.region
+        let search = MKLocalSearch(request: searchRequest)
+        search.start { response, error in
+            guard let response = response else {
+                print("Error: \(error?.localizedDescription ?? "Unknown error").")
+                return
+            }
+            self.searchResults = response.mapItems
+            self.searchResultsTableView.reloadData()
+            //            print("\(self.searchResults)")
+        }
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchResultsTableView.isHidden = false
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchResultsTableView.isHidden = true
+        searchBar.setShowsCancelButton(false, animated: true)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        doSearch()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.endEditing(true)
+        centerMapOnLocation(location: searchResults.first!.placemark)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.endEditing(true)
+        searchBar.text = ""
+    }
+    
+ 
+    func centerMapOnLocation(location: CLLocation) {
+        let coordinateRegion = MKCoordinateRegion(center: location.coordinate,
+                                                  latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
+        mapView.setRegion(coordinateRegion, animated: true)
+    }
+    
+    func centerMapOnLocation(location: MKPlacemark) {
+        let coordinateRegion = MKCoordinateRegion(center: location.coordinate,
+                                                  latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
+        mapView.setRegion(coordinateRegion, animated: true)
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
