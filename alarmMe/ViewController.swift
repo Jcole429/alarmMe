@@ -10,24 +10,33 @@ import UIKit
 import MapKit
 import CoreLocation
 
-class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate{
+class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate {
 
-    var currentLocation = CLLocation(latitude: 21.282778, longitude: -157.829444) //random initial location
+    var currentCLLocation = CLLocation(latitude: 21.282778, longitude: -157.829444) //random initial location
+    var currentCLPlacemark:CLPlacemark = CLPlacemark()
     let regionRadius: CLLocationDistance = 1000
     let locationManager:CLLocationManager = CLLocationManager()
-    
-    @IBOutlet weak var mapView: MKMapView!
     
     //variables for search function
     var searchString:String = ""
     let searchRequest = MKLocalSearch.Request()
     var searchResults:[MKMapItem] = []
     var proposedDestinationLocation:MKMapItem = MKMapItem()
+    var confirmedDestinationLocation:MKMapItem = MKMapItem()
     
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var searchResultsTableView: searchResultsUITableView!
     @IBOutlet weak var proposedDestinationLabel: UILabel!
+    @IBOutlet weak var confirmedDestinationLabel: UILabel!
     @IBOutlet weak var currentLocationLabel: UILabel!
+    @IBOutlet weak var mapView: MKMapView!
+    
+    @IBAction func setAlertButton(_ sender: Any) {
+        self.confirmedDestinationLocation = proposedDestinationLocation
+        confirmedDestinationLabel.text =
+        mkMapItemToAddress(mkMapItem: self.confirmedDestinationLocation)
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,7 +44,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         setupLocationManager()
         setupSearchFunctionality()
 
-        centerMapOnLocation(location: currentLocation)
+        centerMapOnLocation(location: currentCLLocation)
         
         mapView.showsUserLocation = true
     }
@@ -63,7 +72,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         searchBar.endEditing(true)
         centerMapOnLocation(location: self.proposedDestinationLocation.placemark)
     }
-    
+    //convert a MKMapItem to a readable address
     func mkMapItemToAddress (mkMapItem : MKMapItem) -> String {
         let placemark = mkMapItem.placemark
         let result = "\(placemark.subThoroughfare ?? "") \(placemark.thoroughfare ?? "") \(placemark.locality ?? ""), \(placemark.administrativeArea ?? "") \(placemark.postalCode ?? ""), \(placemark.countryCode ?? "")"
@@ -144,18 +153,26 @@ extension ViewController {
         locationManager.distanceFilter = 100 //100 meter frequency filter
         //locationManager.stopUpdatingLocation()()
     }
-    
+    //center location on map using CCLocation
     func centerMapOnLocation(location: CLLocation) {
         let coordinateRegion = MKCoordinateRegion(center: location.coordinate,
                                                   latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
         mapView.setRegion(coordinateRegion, animated: true)
     }
-    
+    //center location on map using CLPlacemark
+    func centerMapOnLocation(location: CLPlacemark) {
+        if location.location?.coordinate != nil{
+            let coordinateRegion = MKCoordinateRegion(center: location.location!.coordinate,
+                                                  latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
+            mapView.setRegion(coordinateRegion, animated: true)
+        }
+    }
+    //when location gets updated, center the map on the location
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         for currentLocation in locations{
             //            print("\(index): \(currentLocation)")
-            self.currentLocation = currentLocation
-            centerMapOnLocation(location: self.currentLocation)
+            self.currentCLLocation = currentLocation
+            centerMapOnLocation(location: self.currentCLLocation)
         }
     }
 }
