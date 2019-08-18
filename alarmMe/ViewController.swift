@@ -17,6 +17,8 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
     let regionRadius: CLLocationDistance = 1000
     let locationManager:CLLocationManager = CLLocationManager()
     
+    var alarmSet = false
+    
     //variables for search function
     var searchString:String = ""
     let searchRequest = MKLocalSearch.Request()
@@ -35,6 +37,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         self.confirmedDestinationLocation = proposedDestinationLocation
         confirmedDestinationLabel.text =
         mkMapItemToAddress(mkMapItem: self.confirmedDestinationLocation)
+        alarmSet = true
     }
     
     
@@ -71,6 +74,10 @@ class ViewController: UIViewController,CLLocationManagerDelegate, UITableViewDat
         proposedDestinationLabel.text = mkMapItemToAddress(mkMapItem: proposedDestinationLocation)
         searchBar.endEditing(true)
         centerMapOnLocation(location: self.proposedDestinationLocation.placemark)
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = self.proposedDestinationLocation.placemark.coordinate
+        annotation.title = mkMapItemToAddress(mkMapItem: proposedDestinationLocation)
+        mapView.addAnnotation(annotation)
     }
     //convert a MKMapItem to a readable address
     func mkMapItemToAddress (mkMapItem : MKMapItem) -> String {
@@ -172,7 +179,9 @@ extension ViewController {
         for currentLocation in locations{
             //            print("\(index): \(currentLocation)")
             self.currentCLLocation = currentLocation
-            centerMapOnLocation(location: self.currentCLLocation)
+            if alarmSet {
+                centerMapOnLocation(location: self.currentCLLocation)
+            }
         }
     }
 }
